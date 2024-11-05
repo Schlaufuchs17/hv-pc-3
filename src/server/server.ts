@@ -16,9 +16,10 @@ const io = new Server(httpServer, {
   }
 });
 
-const clientBuildPath = path.join(__dirname, './dist/client');
+const clientBuildPath = path.join(__dirname, '../client');
 
 app.use(express.static(clientBuildPath));
+//app.use('/client', express.static(path.join(clientBuildPath, 'css')));
 
 app.use((req, res, next) => {
   res.setHeader(
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('*', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
