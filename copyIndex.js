@@ -21,6 +21,7 @@ filesToCopy.forEach((file) => {
 
   // Verifica si el archivo existe antes de copiar
   if (fs.existsSync(source)) {
+
     fs.copyFileSync(source, destination);
     console.log(`${file} copiado a dist/client.`);
   } else {

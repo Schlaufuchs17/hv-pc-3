@@ -1,50 +1,25 @@
 import express from 'express';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
-});
+const PORT = 3000;
 
-const clientBuildPath = path.join(__dirname, '../client');
-
-app.use(express.static(clientBuildPath));
-//app.use('/client', express.static(path.join(clientBuildPath, 'css')));
-
+// Middleware para asegurar que los archivos JavaScript se sirvan con el tipo MIME correcto
 app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://localhost:3000;"
-  );
+  if (req.path.endsWith('.js')) {
+    res.type('application/javascript');
+  }
   next();
 });
 
+// Servir archivos estáticos desde la carpeta client
+app.use(express.static(path.join(__dirname, '../client')));
+
+// Ruta para servir el archivo HTML principal
 app.get('/', (req, res) => {
-  res.sendFile(path.join(clientBuildPath, 'index.html'));
+  res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
-io.on('connection', (socket) => {
-  console.log('Un usuario se ha conectado');
-
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Un usuario se ha desconectado');
-  });
-});
-
-httpServer.listen(3000, () => {
-  console.log('Servidor corriendo en http://localhost:3000');
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
